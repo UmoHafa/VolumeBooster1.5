@@ -1,0 +1,14 @@
+Volume Booster v1.3 — changes
+
+- Boost slider is now 0–40 with quick buttons for 10%, 20%, 30%, and 40%.
+- Moving Boost above 0% automatically starts the foreground boost service.
+- Automatic engine now tries Loudness Enhancer first, then Equalizer.
+- Equalizer fallback requests higher control priority for better compatibility.
+- 40% maps to the existing +12 dB software request ceiling; lower steps scale linearly.
+- App/notification name shortened to “Volume Booster”; launcher artwork remains text-free.
+- Bottom footer now shows only “Loading advertisement…” and stays anchored at the bottom.
+- In-app privacy policy expanded and updated for v1.3.
+- Version bumped to versionCode 4 / versionName 1.3.
+
+Important Android limitation:
+Android does not guarantee that another app can apply an insert audio effect to every other app or route. Session-0/global effects are deprecated, and some players/devices bypass them. The v1.3 changes improve compatibility and remove the separate Start-step UX problem, but no source-only change can guarantee system-wide boost on every Android phone.

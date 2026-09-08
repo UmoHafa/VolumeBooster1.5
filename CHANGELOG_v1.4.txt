@@ -1,0 +1,15 @@
+Volume Booster v1.4
+
+Primary goal: make Boost audibly effective on more Android 9+ devices.
+
+Changes
+- Automatic engine now tries Android DynamicsProcessing first.
+- DynamicsProcessing uses its real input-gain stage (0 to +12 dB) and default limiter.
+- Uses high effect priority where Android exposes a priority constructor.
+- Keeps LoudnessEnhancer and Equalizer as fallbacks.
+- Keeps exact-player-session effects when cooperating players announce a session.
+- Keeps session 0 only as the compatibility/global fallback.
+- Diagnostics report the selected engine and gain readback.
+
+Important Android limitation
+Third-party Play Store apps cannot force all other apps to expose their private audio session IDs. Session-0/global processing is deprecated and vendor-dependent, so no non-root implementation can honestly guarantee global boost on every Android phone/app.

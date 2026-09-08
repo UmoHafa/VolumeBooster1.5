@@ -1,0 +1,81 @@
+PRIVACY POLICY
+Volume Booster - Sound Booster
+Version 1.5 source build • Updated 8 September 2026
+
+1. Scope
+This Privacy Policy describes the Volume Booster - Sound Booster Android application with package name com.volumeboostersoundboost.app. It explains what the app does, what information stays on the device, and how Google advertising and consent services are used.
+
+Before publishing this app publicly, the developer must add a real publisher/developer identity, a monitored privacy-contact email address, and a public URL for this policy. No identity or email address has been invented in this build.
+
+2. What the app does
+Volume Booster changes the phone's media-volume setting and requests Android audio effects such as Dynamics Processing, Loudness Enhancer, or Equalizer. A foreground service keeps the selected effect active while the user listens to media. Compatible media players may announce an Android audio-session number so an effect can be attached to that session.
+
+The app does not record, capture, transcribe, store, analyze, or upload the audio that the user listens to. It does not request microphone access.
+
+3. Developer-operated data collection
+The app does not send app-managed user profiles, audio, diagnostics, or preferences to a developer-operated server. It has no login system, cloud account, or developer database.
+
+The app does, however, include Google Mobile Ads SDK (AdMob) and Google's User Messaging Platform (UMP). These Google services communicate with Google over the Internet to request ads, measure ad delivery, prevent fraud/abuse, and manage privacy choices where required.
+
+4. Information stored locally
+The app stores local preferences in Android private app storage, including the selected Boost level, maximum Boost limit, chosen boost engine, Equalizer options, whether the Volume control is shown, and an internal settings-version value. These settings are used to operate the app and remember the user's choices.
+
+While the foreground service is running, temporary audio-session identifiers and effect status may be held in memory. They are released when the service stops and are not used to build a listening history.
+
+The Google UMP SDK may store consent/privacy choices on the device so the app can respect the user's choices on later launches.
+
+5. Advertising and Google services
+The app can display a Google AdMob banner and a limited interstitial advertisement. The interstitial is designed to appear only at a natural pause after the user stops the boost service and is frequency-limited in the app.
+
+Depending on the user's region, consent choices, device configuration, and Google's systems, Google advertising services may process information such as IP address, advertising/device identifiers, approximate location inferred from IP, app/device information, ad requests, ad impressions, ad interactions, and diagnostic or anti-fraud signals. The exact data handled by Google can change with Google SDK and policy updates.
+
+Where required, the app requests updated consent information on launch through Google UMP and displays a Google privacy message if one is configured in AdMob and required for that user. If Google requires an in-app privacy-options entry point, the app displays a “Privacy choices” item in its menu.
+
+Google Privacy Policy: https://policies.google.com/privacy
+How Google uses information from sites or apps that use its services: https://policies.google.com/technologies/partner-sites
+
+6. Diagnostics
+The Boost diagnostics screen may display technical information available locally on the phone, such as device manufacturer/model, Android version, whether music is active, connected output-device types, temporary audio-session numbers, requested boost level, effect status, parameter readback, and technical error categories.
+
+Diagnostic information is not automatically uploaded to the developer. If the user chooses “Copy report,” the displayed report is copied to the Android clipboard. The user controls whether it is later pasted or shared. Clipboard handling by Android or other apps is outside this app's control.
+
+7. Permissions
+INTERNET — used by Google AdMob and UMP to request ads and privacy/consent information.
+
+ACCESS_NETWORK_STATE — used to determine network availability for ad/privacy requests.
+
+com.google.android.gms.permission.AD_ID — permits access to the Android advertising identifier where the operating system, Google Play services, user settings, and applicable rules allow it.
+
+MODIFY_AUDIO_SETTINGS — used to change media volume and request supported Android audio effects.
+
+FOREGROUND_SERVICE and FOREGROUND_SERVICE_MEDIA_PLAYBACK — used to keep the user-started boost service active while media plays.
+
+POST_NOTIFICATIONS — on Android versions that require it, used only to show the foreground-service notification and Stop action. This permission does not allow the app to read notifications from other apps.
+
+The app does not request microphone, camera, contacts, precise location, broad file/media storage, SMS, call-log, or notification-listener permissions.
+
+8. Data sharing and sale
+The developer does not sell app-managed personal information. Advertising-related information may be transmitted to and processed by Google and participating advertising partners as part of the AdMob service, subject to the user's available privacy choices and Google's terms and policies.
+
+9. Retention and deletion
+Local app preferences remain until the user clears the app's storage/data in Android Settings or uninstalls the app. Stopping the service releases its audio effects and temporary in-memory session records. The app has no remote developer account or remote developer user-data store to delete.
+
+Google may retain advertising or consent-related data under its own retention policies. Users can also control or reset the Android advertising identifier through supported device settings.
+
+Android backup and transfer are disabled for this app where the operating system honors the supplied application settings. Copies already created by the operating system, device vendor, clipboard, or another app are governed by those systems.
+
+10. Security
+The app relies on Android's private application storage for its local preferences. Network communication performed by Google SDKs uses their supplied networking implementation. No software or storage mechanism can be guaranteed completely secure, and device security remains important.
+
+11. Children
+This source build does not provide child accounts or a feature that asks children to submit personal information. Advertising configuration, target audience, and child-directed treatment must be configured correctly by the publisher before public distribution. If the app is directed to children or includes children in its target audience, the publisher must comply with Google Play Families requirements and applicable child-privacy laws, and configure AdMob accordingly.
+
+12. Audio safety
+Boosted audio can damage hearing or speakers and can cause distortion. The Boost percentage is a software control value, not a measured percentage increase in acoustic loudness. A maximum limit or Equalizer shape is not a safety guarantee. Users should increase Boost gradually and stop if they hear distortion or experience discomfort.
+
+13. Changes to this policy
+If the app's permissions, SDKs, advertising, analytics, server communication, accounts, or other data practices change, this policy should be reviewed and updated before the changed version is publicly distributed. The version and update date above identify the policy included in this build.
+
+14. Contact
+Privacy contact: ADD A REAL MONITORED EMAIL BEFORE PUBLIC RELEASE.
+Publisher/developer identity: ADD THE REAL PUBLISHER NAME BEFORE PUBLIC RELEASE.

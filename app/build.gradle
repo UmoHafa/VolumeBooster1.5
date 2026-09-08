@@ -1,0 +1,43 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.volumeboostersoundboost.app'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId 'com.volumeboostersoundboost.app'
+        minSdk 23
+        targetSdk 36
+        versionCode 6
+        versionName '1.5'
+    }
+
+    buildTypes {
+        debug {
+            // Google's official test IDs. Safe for local/GitHub debug APKs.
+            resValue 'string', 'admob_app_id', 'ca-app-pub-3940256099942544~3347511713'
+            resValue 'string', 'admob_banner_id', 'ca-app-pub-3940256099942544/9214589741'
+            resValue 'string', 'admob_interstitial_id', 'ca-app-pub-3940256099942544/1033173712'
+        }
+        release {
+            // Production AdMob IDs created by the publisher.
+            resValue 'string', 'admob_app_id', 'ca-app-pub-7706948366991973~9536460651'
+            resValue 'string', 'admob_banner_id', 'ca-app-pub-7706948366991973/3873070437'
+            resValue 'string', 'admob_interstitial_id', 'ca-app-pub-7706948366991973/8908785018'
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+
+dependencies {
+    implementation 'com.google.android.gms:play-services-ads:25.4.0'
+    implementation 'com.google.android.ump:user-messaging-platform:4.0.0'
+}

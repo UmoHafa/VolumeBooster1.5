@@ -1,0 +1,16 @@
+Volume Booster - Sound Booster v1.5
+
+Primary goal: replace the advertisement placeholder with a real, safer AdMob integration.
+
+Changes
+- Google Mobile Ads SDK 25.4.0.
+- Google UMP 4.0.0.
+- Anchored adaptive bottom banner.
+- Interstitial after every 3rd service stop with a 2-minute app cooldown.
+- Debug builds use Google's test IDs; release builds use publisher production IDs.
+- UMP privacy-options menu entry when required.
+- Updated manifest permissions and privacy policy.
+- versionCode 6 / versionName 1.5.
+
+Testing requirement
+Use debug builds for ad testing. Do not click live production ads.
