@@ -103,6 +103,8 @@ public class BoosterService extends Service {
 
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent == null || ACTION_STOP.equals(intent.getAction())) {
+            stopping = true;
+            handler.removeCallbacksAndMessages(null);
             releaseEffects();
             stopSelf();
             return START_NOT_STICKY;
