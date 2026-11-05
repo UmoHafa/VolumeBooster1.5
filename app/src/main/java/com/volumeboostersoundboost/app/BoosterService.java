@@ -54,13 +54,14 @@ public class BoosterService extends Service {
     private boolean shape;
     private boolean destroyed;
     private boolean initialized;
+    private boolean stopping;
     private final RecoveryBudget recovery = new RecoveryBudget();
     private final Runnable rebuildTask = new Runnable() {
         @Override public void run() { if (!destroyed) rebuild(); }
     };
     private final Runnable monitor = new Runnable() {
         @Override public void run() {
-            if (destroyed) return;
+            if (destroyed || stopping) return;
             boolean failed = false;
             for (SessionEffect effect : effects.values()) {
                 if (!effect.usable() || (boost > 0 && !effect.enabledAndControlled())) failed = true;
@@ -162,7 +163,7 @@ public class BoosterService extends Service {
     }
 
     private void scheduleRebuild() {
-        if (destroyed || !initialized) return;
+        if (destroyed || stopping || !initialized) return;
         recovery.reset();
         handler.removeCallbacks(rebuildTask);
         handler.postDelayed(rebuildTask, 250);
@@ -177,7 +178,7 @@ public class BoosterService extends Service {
     }
 
     private void rebuild() {
-        if (destroyed) return;
+        if (destroyed || stopping) return;
         initialized = true;
         handler.removeCallbacks(rebuildTask);
         releaseEffects();

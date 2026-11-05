@@ -53,4 +53,3 @@ jobs:
           name: VolumeBooster-v2-preview-TEST-APK
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
-
