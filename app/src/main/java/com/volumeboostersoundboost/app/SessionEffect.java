@@ -23,13 +23,14 @@ final class SessionEffect {
             name = BoostConfig.engineName(engine);
             try {
                 if (engine == BoostConfig.DYNAMICS) {
-                    if (Build.VERSION.SDK_INT < 28) {
+                    if (Build.VERSION.SDK_INT >= 28) {
+                        // Preserve the V1.5 vendor path on compatible devices.
+                        effect = new DynamicsProcessing(10000, session, null);
+                    } else {
                         detail = "Requires Android 9+";
                         failures.add("Session " + session + " " + name + ": " + detail);
                         continue;
                     }
-                    // High priority helps this client retain control when another EQ/effect app exists.
-                    effect = new DynamicsProcessing(10000, session, null);
                 } else if (engine == BoostConfig.EQUALIZER) {
                     effect = new Equalizer(10000, session);
                 } else {
