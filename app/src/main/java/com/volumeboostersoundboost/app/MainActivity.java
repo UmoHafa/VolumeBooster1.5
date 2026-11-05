@@ -87,6 +87,8 @@ public class MainActivity extends Activity {
     private int serviceStopsSinceInterstitial;
     private long lastInterstitialShownAt;
     private ConsentInformation consentInformation;
+    private int adGeneration;
+    private boolean privacyFormOpen;
 
     private final Handler statusHandler = new Handler(Looper.getMainLooper());
     private final Runnable statusUpdater = new Runnable() {
@@ -538,11 +540,12 @@ public class MainActivity extends Activity {
     }
 
     private boolean canUseAds() {
-        return !isFinishing() && !isDestroyed() && consentInformation != null
+        return !privacyFormOpen && !isFinishing() && !isDestroyed() && consentInformation != null
                 && consentInformation.canRequestAds();
     }
 
     private void clearLoadedAds() {
+        adGeneration++;
         interstitialAd = null;
         if (bannerAdView != null) {
             bannerAdView.destroy();
@@ -592,6 +595,7 @@ public class MainActivity extends Activity {
     private void loadInterstitialAd() {
         if (!adsInitialized || !canUseAds()) return;
 
+        final int generation = adGeneration;
         InterstitialAd.load(
                 this,
                 getString(R.string.admob_interstitial_id),
@@ -599,7 +603,7 @@ public class MainActivity extends Activity {
                 new InterstitialAdLoadCallback() {
                     @Override
                     public void onAdLoaded(InterstitialAd ad) {
-                        if (!canUseAds()) return;
+                        if (!canUseAds() || generation != adGeneration) return;
                         interstitialAd = ad;
                         ad.setFullScreenContentCallback(new FullScreenContentCallback() {
                             @Override
@@ -689,8 +693,10 @@ public class MainActivity extends Activity {
                 @Override
                 public void onClick(View view) {
                     dialog.dismiss();
+                    privacyFormOpen = true;
                     clearLoadedAds();
                     UserMessagingPlatform.showPrivacyOptionsForm(MainActivity.this, formError -> {
+                        privacyFormOpen = false;
                         if (canUseAds()) {
                             if (!adsInitialized) initializeAdsOnce();
                             else { loadBannerAd(); loadInterstitialAd(); }
