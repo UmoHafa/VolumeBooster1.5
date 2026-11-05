@@ -8,6 +8,7 @@ TEST_SOURCES=(
   tests/fakes/android/media/audiofx/DynamicsProcessing.java
   tests/fakes/android/media/audiofx/Equalizer.java
   tests/fakes/android/media/audiofx/LoudnessEnhancer.java
+  app/src/main/java/com/volumeboostersoundboost/app/RecoveryBudget.java
   tests/EngineTests.java
   app/src/main/java/com/volumeboostersoundboost/app/BoostConfig.java
   app/src/main/java/com/volumeboostersoundboost/app/SessionEffect.java

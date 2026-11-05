@@ -4,7 +4,12 @@ on:
   push:
     branches:
       - main
+      - repair/**
+  pull_request:
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -33,12 +38,15 @@ jobs:
         with:
           gradle-version: '8.13'
 
-      - name: Build Debug APK
-        run: gradle --no-daemon :app:assembleDebug --stacktrace
+      - name: Run deterministic engine tests
+        run: bash tests/run.sh
+
+      - name: Build and lint Debug APK
+        run: gradle --no-daemon :app:assembleDebug :app:lintDebug --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: VolumeBooster-v1.5-TEST-APK
+          name: VolumeBooster-v2-preview-TEST-APK
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error

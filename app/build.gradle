@@ -10,9 +10,11 @@ android {
         applicationId 'com.volumeboostersoundboost.app'
         minSdk 23
         targetSdk 36
-        versionCode 6
-        versionName '1.5'
+        versionCode 7
+        versionName '2.0-preview01'
     }
+
+    buildFeatures { buildConfig true }
 
     buildTypes {
         debug {

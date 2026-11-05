@@ -5,5 +5,5 @@ public class LoudnessEnhancer extends AudioEffect {
         if (createLoudnessFails) { release(); throw new UnsupportedOperationException("LE missing"); }
     }
     public void setTargetGain(int value) { gain = value; }
-    public float getTargetGain() { return mismatch ? 0 : gain; }
+    public float getTargetGain() { return nonFinite ? Float.POSITIVE_INFINITY : mismatch ? 0 : gain; }
 }

@@ -7,5 +7,5 @@ public class DynamicsProcessing extends AudioEffect {
     }
     public void setInputGainAllChannelsTo(float value) { gain = value; }
     public int getChannelCount() { return channels; }
-    public float getInputGainByChannelIndex(int channel) { return mismatch ? 0f : gain; }
+    public float getInputGainByChannelIndex(int channel) { return nonFinite ? Float.NaN : mismatch ? 0f : gain; }
 }

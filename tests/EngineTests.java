@@ -98,6 +98,35 @@ public class EngineTests {
         check(AudioEffect.live == 0 && AudioEffect.released == 1, "release survives disable error");
         effect.release();
         check(AudioEffect.released == 1, "release idempotent");
+        AudioEffect.reset();
+        effect = new SessionEffect(0, BoostConfig.DYNAMICS, 20, true, NOOP);
+        AudioEffect.mismatch = true;
+        check(!effect.apply(30, true), "runtime mismatch rejected");
+        check(AudioEffect.live == 0, "runtime mismatch releases native engine");
+        AudioEffect.mismatch = false;
+        effect.release();
+        effect = new SessionEffect(0, BoostConfig.DYNAMICS, 20, true, NOOP);
+        check(effect.enabledAndControlled(), "engine can be recreated after failure");
+        check(effect.apply(-1, true) && !effect.enabledAndControlled(), "negative input is disabled");
+        effect.release();
+        check(!effect.apply(20, true) && AudioEffect.live == 0, "released engine cannot reactivate");
+
+        AudioEffect.reset();
+        AudioEffect.nonFinite = true;
+        effect = new SessionEffect(0, BoostConfig.DYNAMICS, 20, true, NOOP);
+        check(!effect.usable() && AudioEffect.live == 0, "NaN DP readback rejected and released");
+        effect = new SessionEffect(0, BoostConfig.LOUDNESS, 20, true, NOOP);
+        check(!effect.usable() && AudioEffect.live == 0, "infinite loudness readback rejected");
+
+        RecoveryBudget recovery = new RecoveryBudget();
+        check(recovery.acquire(100), "first retry available");
+        check(!recovery.acquire(3099), "retry rate limited");
+        check(recovery.acquire(3100), "second retry after delay");
+        check(!recovery.acquire(9099), "second backoff enforced");
+        check(recovery.acquire(9100), "third retry");
+        check(!recovery.acquire(Long.MAX_VALUE), "unsupported device cannot loop forever");
+        recovery.reset();
+        check(recovery.attempts() == 0 && recovery.acquire(9200), "explicit retry resets budget");
         System.out.println("PASS: " + checks + " deterministic/fake-backend checks.");
         System.out.println("These tests do not measure phone audio or verify Android runtime UI.");
     }

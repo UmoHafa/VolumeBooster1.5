@@ -18,6 +18,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.SystemClock;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -52,13 +53,20 @@ public class BoosterService extends Service {
     private int mode;
     private boolean shape;
     private boolean destroyed;
+    private boolean initialized;
+    private final RecoveryBudget recovery = new RecoveryBudget();
     private final Runnable rebuildTask = new Runnable() {
         @Override public void run() { if (!destroyed) rebuild(); }
     };
     private final Runnable monitor = new Runnable() {
         @Override public void run() {
             if (destroyed) return;
-            publishStatus();
+            boolean failed = false;
+            for (SessionEffect effect : effects.values()) {
+                if (!effect.usable() || (boost > 0 && !effect.enabledAndControlled())) failed = true;
+            }
+            if (boost > 0 && failed && recovery.acquire(SystemClock.elapsedRealtime())) rebuild();
+            else publishStatus();
             handler.postDelayed(this, 1500);
         }
     };
@@ -86,16 +94,19 @@ public class BoosterService extends Service {
             @Override public void onAudioDevicesAdded(AudioDeviceInfo[] added) { scheduleRebuild(); }
             @Override public void onAudioDevicesRemoved(AudioDeviceInfo[] removed) { scheduleRebuild(); }
         };
-        audio.registerAudioDeviceCallback(devices, handler);
-        rebuild();
+        try { audio.registerAudioDeviceCallback(devices, handler); }
+        catch (RuntimeException error) { devices = null; }
+        // Wait for the command: a stale Stop intent must never apply saved gain.
         handler.postDelayed(monitor, 1500);
     }
 
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && ACTION_STOP.equals(intent.getAction())) {
+        if (intent == null || ACTION_STOP.equals(intent.getAction())) {
+            releaseEffects();
             stopSelf();
             return START_NOT_STICKY;
         }
+        recovery.reset();
         int oldMode = mode;
         readSettings();
         if (intent != null && intent.hasExtra(EXTRA_BOOST_PERCENT)) {
@@ -105,7 +116,7 @@ public class BoosterService extends Service {
         }
         int session = intent == null ? 0 : intent.getIntExtra(AudioEffect.EXTRA_AUDIO_SESSION, 0);
         boolean added = session > 0 && sessions.size() < 16 && sessions.add(session);
-        if (added || oldMode != mode || (intent != null && ACTION_RETRY.equals(intent.getAction()))) {
+        if (!initialized || added || oldMode != mode || (intent != null && ACTION_RETRY.equals(intent.getAction()))) {
             rebuild();
         } else {
             for (SessionEffect effect : effects.values()) effect.apply(boost, shape);
@@ -151,6 +162,8 @@ public class BoosterService extends Service {
     }
 
     private void scheduleRebuild() {
+        if (destroyed || !initialized) return;
+        recovery.reset();
         handler.removeCallbacks(rebuildTask);
         handler.postDelayed(rebuildTask, 250);
     }
@@ -164,6 +177,9 @@ public class BoosterService extends Service {
     }
 
     private void rebuild() {
+        if (destroyed) return;
+        initialized = true;
+        handler.removeCallbacks(rebuildTask);
         releaseEffects();
         failures.clear();
         readSettings();
@@ -193,10 +209,11 @@ public class BoosterService extends Service {
         else if (global) status = "Boost engine attached to Android global mix; test audible output now.";
         else status = "Boost engine attached to the active player session; test audible output now.";
 
-        StringBuilder text = new StringBuilder("Volume Booster v1.4 — local diagnostics\n");
+        StringBuilder text = new StringBuilder("Volume Booster " + BuildConfig.VERSION_NAME + " — local diagnostics\n");
         text.append(Build.MANUFACTURER).append(' ').append(Build.MODEL)
                 .append(" · Android ").append(Build.VERSION.RELEASE).append(" (API ")
                 .append(Build.VERSION.SDK_INT).append(")\n");
+        text.append("Automatic recovery attempts: ").append(recovery.attempts()).append("/3\n");
         text.append("Mode: ").append(BoostConfig.engineName(mode)).append("\nBoost: ")
                 .append(boost).append("% / max ").append(prefs.getInt(KEY_MAX, BoostConfig.HARD_LIMIT))
                 .append("%\nRequested ceiling: ").append(BoostConfig.gainMb(boost) / 100f)
@@ -257,7 +274,7 @@ public class BoosterService extends Service {
         destroyed = true;
         handler.removeCallbacksAndMessages(null);
         if (receiver != null) try { unregisterReceiver(receiver); } catch (RuntimeException ignored) {}
-        if (devices != null) audio.unregisterAudioDeviceCallback(devices);
+        if (devices != null) try { audio.unregisterAudioDeviceCallback(devices); } catch (RuntimeException ignored) {}
         releaseEffects();
         sessions.clear();
         running = false;

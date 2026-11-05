@@ -499,6 +499,7 @@ public class MainActivity extends Activity {
                 new ConsentInformation.OnConsentInfoUpdateSuccessListener() {
                     @Override
                     public void onConsentInfoUpdateSuccess() {
+                        if (isFinishing() || isDestroyed()) return;
                         UserMessagingPlatform.loadAndShowConsentFormIfRequired(
                                 MainActivity.this,
                                 formError -> {
@@ -526,17 +527,32 @@ public class MainActivity extends Activity {
     }
 
     private void initializeAdsOnce() {
-        if (adsInitialized) return;
+        if (adsInitialized || !canUseAds()) return;
         adsInitialized = true;
 
-        MobileAds.initialize(this, initializationStatus -> {
+        MobileAds.initialize(getApplicationContext(), initializationStatus -> runOnUiThread(() -> {
+            if (!canUseAds()) return;
             loadBannerAd();
             loadInterstitialAd();
-        });
+        }));
+    }
+
+    private boolean canUseAds() {
+        return !isFinishing() && !isDestroyed() && consentInformation != null
+                && consentInformation.canRequestAds();
+    }
+
+    private void clearLoadedAds() {
+        interstitialAd = null;
+        if (bannerAdView != null) {
+            bannerAdView.destroy();
+            bannerContainer.removeView(bannerAdView);
+            bannerAdView = null;
+        }
     }
 
     private void loadBannerAd() {
-        if (bannerContainer == null || isFinishing()) return;
+        if (bannerContainer == null || !canUseAds()) return;
 
         if (bannerAdView != null) {
             bannerAdView.destroy();
@@ -574,7 +590,7 @@ public class MainActivity extends Activity {
     }
 
     private void loadInterstitialAd() {
-        if (!adsInitialized || isFinishing()) return;
+        if (!adsInitialized || !canUseAds()) return;
 
         InterstitialAd.load(
                 this,
@@ -583,6 +599,7 @@ public class MainActivity extends Activity {
                 new InterstitialAdLoadCallback() {
                     @Override
                     public void onAdLoaded(InterstitialAd ad) {
+                        if (!canUseAds()) return;
                         interstitialAd = ad;
                         ad.setFullScreenContentCallback(new FullScreenContentCallback() {
                             @Override
@@ -613,7 +630,7 @@ public class MainActivity extends Activity {
     }
 
     private void maybeShowInterstitialAfterServiceStop() {
-        if (!adsInitialized || interstitialAd == null) return;
+        if (!adsInitialized || interstitialAd == null || !canUseAds() || !hasWindowFocus()) return;
         if (serviceStopsSinceInterstitial < STOPS_PER_INTERSTITIAL) return;
 
         long now = System.currentTimeMillis();
@@ -672,7 +689,12 @@ public class MainActivity extends Activity {
                 @Override
                 public void onClick(View view) {
                     dialog.dismiss();
+                    clearLoadedAds();
                     UserMessagingPlatform.showPrivacyOptionsForm(MainActivity.this, formError -> {
+                        if (canUseAds()) {
+                            if (!adsInitialized) initializeAdsOnce();
+                            else { loadBannerAd(); loadInterstitialAd(); }
+                        }
                         if (formError != null) {
                             Toast.makeText(MainActivity.this,
                                     "Privacy options could not be opened. Try again later.",

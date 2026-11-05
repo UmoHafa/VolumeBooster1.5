@@ -38,14 +38,14 @@ final class SessionEffect {
                 if (apply(boost, shape)) {
                     effect.setControlStatusListener(new AudioEffect.OnControlStatusChangeListener() {
                         @Override public void onControlStatusChange(AudioEffect source, boolean control) {
-                            if (released) return;
+                            if (released || source != effect) return;
                             if (control) apply(percent, nonUniform);
                             changed.run();
                         }
                     });
                     effect.setEnableStatusListener(new AudioEffect.OnEnableStatusChangeListener() {
                         @Override public void onEnableStatusChange(AudioEffect source, boolean enabled) {
-                            if (!released) changed.run();
+                            if (!released && source == effect) changed.run();
                         }
                     });
                     return;
@@ -59,10 +59,11 @@ final class SessionEffect {
     }
 
     boolean apply(int boost, boolean shape) {
+        boost = BoostConfig.clamp(boost, BoostConfig.HARD_LIMIT);
         percent = boost;
         nonUniform = shape;
         configured = false;
-        if (effect == null) return false;
+        if (released || effect == null) return false;
         try {
             if (!effect.hasControl()) { detail = "Control held by another client"; return false; }
             if (Build.VERSION.SDK_INT >= 28 && effect instanceof DynamicsProcessing) {
@@ -72,28 +73,28 @@ final class SessionEffect {
                 int channels = dp.getChannelCount();
                 if (channels <= 0) {
                     detail = "No DynamicsProcessing channels";
-                    effect.setEnabled(false);
+                    releaseNative();
                     return false;
                 }
                 float lowestReadback = Float.MAX_VALUE;
                 for (int channel = 0; channel < channels; channel++) {
                     float readback = dp.getInputGainByChannelIndex(channel);
                     lowestReadback = Math.min(lowestReadback, readback);
-                    if (Math.abs(readback - requestedDb) > 0.15f) {
+                    if ((Float.isNaN(readback) || Float.isInfinite(readback) || Math.abs(readback - requestedDb) > 0.15f)) {
                         detail = "Input gain readback mismatch on channel " + channel + ": " + readback + " dB";
-                        effect.setEnabled(false);
+                        releaseNative();
                         return false;
                     }
                 }
-                detail = channels + " channels; input gain readback " + lowestReadback + " dB; limiter enabled by default";
+                detail = channels + " channels; input gain readback " + lowestReadback + " dB; default vendor processing (output not measured)";
             } else if (effect instanceof LoudnessEnhancer) {
                 LoudnessEnhancer le = (LoudnessEnhancer) effect;
                 int requested = BoostConfig.gainMb(boost);
                 le.setTargetGain(requested);
                 float readback = le.getTargetGain();
-                if (Math.abs(readback - requested) > 1f) {
+                if ((Float.isNaN(readback) || Float.isInfinite(readback) || Math.abs(readback - requested) > 1f)) {
                     detail = "Gain readback mismatch: " + readback + " mB";
-                    effect.setEnabled(false);
+                    releaseNative();
                     return false;
                 }
                 detail = "gain readback " + readback / 100f + " dB";
@@ -101,9 +102,9 @@ final class SessionEffect {
                 Equalizer eq = (Equalizer) effect;
                 short[] range = eq.getBandLevelRange();
                 short bands = eq.getNumberOfBands();
-                if (bands <= 0 || range[1] <= 0) {
+                if (range == null || range.length < 2 || bands <= 0 || range[0] > 0 || range[1] <= 0 || range[0] > range[1]) {
                     detail = "No positive-gain bands";
-                    effect.setEnabled(false);
+                    releaseNative();
                     return false;
                 }
                 int highest = 0;
@@ -114,7 +115,7 @@ final class SessionEffect {
                     int readback = eq.getBandLevel(band);
                     if (Math.abs(readback - target) > 50) {
                         detail = "Band " + band + " gain readback mismatch";
-                        effect.setEnabled(false);
+                        releaseNative();
                         return false;
                     }
                     highest = Math.max(highest, readback);
