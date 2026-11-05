@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.SystemClock;
+import androidx.core.content.ContextCompat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -157,8 +158,7 @@ public class BoosterService extends Service {
         filter.addAction(AudioEffect.ACTION_CLOSE_AUDIO_EFFECT_CONTROL_SESSION);
         try {
             // Cooperating players must be able to announce bounded session IDs.
-            if (Build.VERSION.SDK_INT >= 33) registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED);
-            else registerReceiver(receiver, filter);
+            ContextCompat.registerReceiver(this, receiver, filter, ContextCompat.RECEIVER_EXPORTED);
         } catch (RuntimeException error) {
             receiver = null;
         }

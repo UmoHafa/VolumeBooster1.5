@@ -118,6 +118,16 @@ public class EngineTests {
         effect = new SessionEffect(0, BoostConfig.LOUDNESS, 20, true, NOOP);
         check(!effect.usable() && AudioEffect.live == 0, "infinite loudness readback rejected");
 
+        AudioEffect.reset();
+        android.os.Build.VERSION.SDK_INT = 23;
+        effect = new SessionEffect(0, BoostConfig.AUTO, 20, true, NOOP);
+        check(effect.enabledAndControlled() && effect.describe().startsWith("Loudness Enhancer"),
+                "API 23 automatic selection skips DynamicsProcessing");
+        effect.release();
+        effect = new SessionEffect(0, BoostConfig.DYNAMICS, 20, true, NOOP);
+        check(!effect.usable() && AudioEffect.live == 0, "API 23 manual DP reports unavailable");
+        android.os.Build.VERSION.SDK_INT = 33;
+
         RecoveryBudget recovery = new RecoveryBudget();
         check(recovery.acquire(100), "first retry available");
         check(!recovery.acquire(3099), "retry rate limited");

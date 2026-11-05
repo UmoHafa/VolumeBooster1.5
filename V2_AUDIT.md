@@ -42,3 +42,8 @@ Debug uses Google's test AdMob IDs. Production IDs are preserved. Publishing is 
 - https://developers.google.com/admob/android/privacy
 
 The old claimed `/mnt/data/VolumeBooster_V2_Audio_Repair_Kit.zip` was not present in the accessible workspace or returned chat attachments. Prior claimed test counts are not used as evidence for this preview.
+
+## Additional build audit findings
+The baseline CI requested the removed Android SDK `tools` package and disabled AndroidX despite AdMob's AndroidX dependencies. Both are repaired. Receiver registration now uses ContextCompat with an explicit exported flag on all supported API versions. This receiver intentionally accepts cooperating-player announcements, keeps at most 16 session IDs, and is not an authenticated source of playback activity.
+
+95 local Java fake-backend checks pass, including API 23 engine selection. Android runtime/service lifecycle and acoustic tests remain pending. Lint also reports existing translation, launcher-icon, fixed-orientation, newer-dependency and target-version warnings; these are modernization work, not proof of Play approval.

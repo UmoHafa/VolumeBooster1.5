@@ -1,6 +1,6 @@
 PRIVACY POLICY
 Volume Booster - Sound Booster
-Version 1.5 source build • Updated 8 September 2026
+Version 2.0 preview source build • Updated 5 November 2026
 
 1. Scope
 This Privacy Policy describes the Volume Booster - Sound Booster Android application with package name com.volumeboostersoundboost.app. It explains what the app does, what information stays on the device, and how Google advertising and consent services are used.
@@ -48,7 +48,7 @@ com.google.android.gms.permission.AD_ID — permits access to the Android advert
 
 MODIFY_AUDIO_SETTINGS — used to change media volume and request supported Android audio effects.
 
-FOREGROUND_SERVICE and FOREGROUND_SERVICE_MEDIA_PLAYBACK — used to keep the user-started boost service active while media plays.
+FOREGROUND_SERVICE and FOREGROUND_SERVICE_SPECIAL_USE — used to keep the user-started boost service active while media plays.
 
 POST_NOTIFICATIONS — on Android versions that require it, used only to show the foreground-service notification and Stop action. This permission does not allow the app to read notifications from other apps.
 
